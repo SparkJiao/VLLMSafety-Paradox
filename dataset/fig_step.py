@@ -31,3 +31,7 @@ class SafeBenchCSVReader(Dataset):
 
     def __len__(self):
         return len(self.data)
+
+    @classmethod
+    def return_cls(cls):
+        return cls
