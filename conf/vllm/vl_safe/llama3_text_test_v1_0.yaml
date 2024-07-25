@@ -29,14 +29,14 @@ split_id: 0
 max_num_seqs: 256
 suffix: n${n}.tem${tem}
 
-output_file: ../pretrained-models/Meta-Llama-3-8B-Instruct/mm-safety/fig-step/safebench.${suffix}.json
+output_file: ../pretrained-models/Meta-Llama-3-8B-Instruct/mm-safety/vl-safe/vl-safe.${suffix}.json
 flush_file: ${output_file}l
 
 apply_chat_template: False
 add_generation_prompt: True
 
 
-prompt: "{question}"
+prompt: "{query}"
 chat_prefix: "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant to answer the questions from the user.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n"
 chat_suffix: "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
