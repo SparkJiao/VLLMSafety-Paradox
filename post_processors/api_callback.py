@@ -2,7 +2,7 @@ import collections
 import json
 import os
 import re
-from typing import Dict, Any, List, Tuple, Union
+from typing import Dict, Any, List, Tuple, Union, Callable
 import numpy as np
 import vllm
 from omegaconf import ListConfig
@@ -220,3 +220,97 @@ class SaveOnlyCallBack(OpenAICallBack):
         json.dump(self.predictions, open(self.output_file, "w"), indent=2)
         self.fw.close()
         return {}, []
+
+
+class SafetyResponseCallback:
+    def __init__(self, output_file: str, answer_clean: Callable = None, resume: bool = False, label_field: str = "label",
+                 index_field: str = "index", evaluator: Callable = None, saved_keys: List[str] = None):
+        self.predictions = []
+        self.output_file = output_file
+        self.answer_clean = answer_clean
+        self.label_field = label_field
+        self.index_field = index_field
+        self.evaluator = evaluator
+        self.saved_keys = saved_keys
+        if isinstance(self.saved_keys, ListConfig):
+            self.saved_keys = list(self.saved_keys)
+
+        logging_file = output_file.replace(".json", ".jsonl")
+        save_dir = os.path.dirname(logging_file)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir, exist_ok=True)
+
+        if os.path.exists(logging_file):
+            if resume:
+                with open(logging_file, "r", encoding="utf-8") as f:
+                    for line in f.readlines():
+                        item = json.loads(line)
+                        if isinstance(item["response"], str):
+                            if item["response"].strip() == "":
+                                continue
+                        elif isinstance(item["response"], list):
+                            if any([tmp.strip() == "" for tmp in item["response"]]):
+                                continue
+                        self.predictions.append(item)
+                logger.info(f"Load {len(self.predictions)} from {logging_file}")
+            self.fw = open(logging_file, "a", encoding="utf-8")
+        else:
+            self.fw = open(logging_file, "w", encoding="utf-8")
+
+    def __call__(self, meta_data: Dict[str, Any], batch_model_outputs: Dict[str, Any], **kwargs):
+        text = meta_data["text"]
+        if self.label_field in meta_data:
+            label = meta_data[self.label_field]
+        else:
+            label = -1
+        index = meta_data[self.index_field]
+
+        response = batch_model_outputs["response"]
+        if isinstance(response, vllm.RequestOutput):
+            if response.finished:
+                response = [o.text for o in response.outputs]
+                if len(response) == 1:
+                    response = response[0]
+            else:
+                response = ""
+        # if isinstance(response, str):
+        #     pred_clean = self.answer_clean(response)
+        # elif isinstance(response, list):
+        #     pred_clean = [self.answer_clean(item) for item in response]
+        # else:
+        #     raise ValueError(f"Unknown type of response: {type(response)}")
+
+        out_item = {
+            "text": text,
+            "response": response,
+            # "pred": pred_clean,
+            "id": index,
+            "label": -1,
+        }
+        if self.saved_keys is not None:
+            for key in self.saved_keys:
+                out_item[key] = meta_data[key]
+        self.predictions.append(out_item)
+        self.fw.write(json.dumps(self.predictions[-1], ensure_ascii=False) + "\n")
+        self.fw.flush()
+
+    def get_results(self):
+        save_dir = os.path.dirname(self.output_file)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir, exist_ok=True)
+        self.fw.close()
+
+        # Remove duplicated ids to satisfy the submission requirements of ReClor.
+        outputs = sorted(self.predictions, key=lambda x: x["id"])
+        id_set = set()
+        new_outputs = []
+        for item in outputs:
+            if item["id"] not in id_set:
+                new_outputs.append(item)
+                id_set.add(item["id"])
+        self.predictions = new_outputs
+
+        self.predictions, metrics = self.evaluator(self.predictions)
+        json.dump(self.predictions, open(self.output_file, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        json.dump(metrics, open(self.output_file.replace(".json", ".metrics.json"), "w"), indent=2)
+        return metrics, []

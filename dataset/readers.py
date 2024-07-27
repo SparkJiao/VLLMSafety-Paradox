@@ -1,7 +1,11 @@
 import copy
 import csv
 from torch.utils.data import Dataset
+from glob import glob
 import json
+from general_util.logger import get_child_logger
+
+logger = get_child_logger(__name__)
 
 
 class SafeBenchCSVReader(Dataset):
@@ -23,7 +27,8 @@ class SafeBenchCSVReader(Dataset):
         data = []
         with open(file_path, encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile, delimiter=',')
-            for row in reader:
+            for i, row in enumerate(reader):
+                row["id"] = i
                 data.append(row)
 
         self.data = data
@@ -65,6 +70,8 @@ def jsonl_reader():
 
     def func(file_path: str):
         data = [json.loads(line) for line in open(file_path).readlines()]
+        for i, item in enumerate(data):
+            item["id"] = i
         return data
 
     return func
@@ -89,11 +96,15 @@ def json2list_reader():
     """
 
     def func(file_path):
-        data = json.load(open(file_path))
+        files = glob(file_path + "/*.json")
         outputs = []
-        for k, v in data.items():
-            v["id"] = k
-            outputs.append(v)
+        for file in files:
+            _file_name = file.split("/")[-1].replace(".json", "")
+            logger.info(f"Reading {file}")
+            data = json.load(open(file))
+            for k, v in data.items():
+                v["id"] = f"{_file_name}-{k}"
+                outputs.append(v)
         return outputs
 
     return func
@@ -128,20 +139,30 @@ def vl_guard_reader():
 
         outputs = []
         for item in data:
-            resp_tuple = item.pop("instr-resp")
+            resp_tuple = item["instr-resp"]
 
-            new_item1 = copy.deepcopy(item)
-            new_item1["instruction"] = resp_tuple[0]["safe_instruction"]
-            new_item1["response"] = resp_tuple[0]["response"]
-            new_item1["instruction_safe"] = True
+            for i, resp in enumerate(resp_tuple):
+                if "safe_instruction" in resp:
+                    new_item = copy.deepcopy(item)
+                    new_item["instruction"] = resp["safe_instruction"]
+                    new_item["response"] = resp["response"]
+                    new_item["instruction_safe"] = True
+                elif "unsafe_instruction" in resp:
+                    new_item = copy.deepcopy(item)
+                    new_item["instruction"] = resp["unsafe_instruction"]
+                    new_item["response"] = resp["response"]
+                    new_item["instruction_safe"] = False
+                elif "instruction" in resp:
+                    new_item = copy.deepcopy(item)
+                    new_item["instruction"] = resp["instruction"]
+                    new_item["response"] = resp["response"]
+                    new_item["instruction_safe"] = item["safe"]
+                else:
+                    logger.warning(resp)
+                    raise ValueError("No instruction found")
+                new_item["id"] = f"{item['id']}-{i}"
+                outputs.append(new_item)
 
-            new_item2 = copy.deepcopy(item)
-            new_item2["instruction"] = resp_tuple[1]["unsafe_instruction"]
-            new_item2["response"] = resp_tuple[1]["response"]
-            new_item2["instruction_safe"] = False
-
-            outputs.append(new_item1)
-            outputs.append(new_item2)
         return outputs
 
     return func
