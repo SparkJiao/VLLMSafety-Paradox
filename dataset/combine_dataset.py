@@ -9,6 +9,7 @@ from torch.utils.data import Dataset
 from transformers import PreTrainedTokenizer
 
 from general_util.logger import get_child_logger
+from PIL import Image
 
 logger = get_child_logger(__name__)
 
@@ -37,6 +38,7 @@ class ResponseAlignDataset(Dataset):
                  index_field: str = "id",
                  max_data_num: int = -1,
                  read_fn: Callable = json_read_fn,
+                 image_key: str = None,
                  ):
         self.tokenizer = tokenizer
         self.template = template
@@ -51,6 +53,7 @@ class ResponseAlignDataset(Dataset):
         self.split_id = split_id
         self.index_field = index_field
         self.max_data_num = max_data_num
+        self.image_key = image_key
 
         data = read_fn(file_path)
         self.data: List[Dict] = aligner(data)
@@ -87,10 +90,15 @@ class ResponseAlignDataset(Dataset):
         if self.message_compose_fn is not None:
             text = self.message_compose_fn(text)
         item["text"] = text
-        return {
+
+        res = {
             "text": text,
             "meta_data": item,
         }
+        if self.image_key is not None:
+            image = Image.open(item[self.image_key])
+            res["image"] = image
+        return res
 
     def service_getitem(self, index):
         inputs = self.api_getitem(index)
@@ -106,10 +114,16 @@ class ResponseAlignDataset(Dataset):
         item = self.data[idx]
         text = self.template.format(**item)
         item["text"] = text
-        return {
+        res = {
             "text": text,
             "meta_data": item,
         }
+
+        if self.image_key is not None:
+            image = Image.open(item[self.image_key])
+            res["image"] = image
+
+        return res
 
 
 class PromptResponseDataset(Dataset):

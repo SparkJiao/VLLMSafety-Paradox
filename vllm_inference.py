@@ -44,6 +44,7 @@ torch.backends.cuda.matmul.allow_tf32 = True
 def evaluate(cfg: DictConfig, model: vllm.LLM, prefix="", _split="dev"):
     dataset = load_and_cache_examples(cfg, None, _split=_split)
     tokenizer: PreTrainedTokenizer = model.get_tokenizer()
+    logger.info(tokenizer.__class__.__name__)
 
     output_dir = getattr(cfg, "predict_dir", cfg.output_dir)
 
@@ -65,11 +66,20 @@ def evaluate(cfg: DictConfig, model: vllm.LLM, prefix="", _split="dev"):
             continue
         inputs = dataset.api_getitem(i)
         if getattr(cfg, "apply_chat_template", False):
-            all_prompts.append(tokenizer.apply_chat_template(conversation=inputs.pop("text"),
-                                                             tokenize=False,
-                                                             add_generation_prompt=getattr(cfg, "add_generation_prompt", True)))
+            text = tokenizer.apply_chat_template(conversation=inputs.pop("text"),
+                                                 tokenize=False,
+                                                 add_generation_prompt=getattr(cfg, "add_generation_prompt", True))
         else:
-            all_prompts.append(inputs.pop("text"))
+            text = inputs.pop("text")
+        if "image" in inputs:
+            all_prompts.append({
+                "prompt": text,
+                "multi_modal_data": {
+                    "image": inputs["image"]
+                },
+            })
+        else:
+            all_prompts.append(text)
         all_meta_data.append(inputs.pop("meta_data"))
 
     sampling_params: SamplingParams = hydra.utils.instantiate(cfg.sampling_params)
