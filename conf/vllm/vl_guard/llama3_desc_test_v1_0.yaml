@@ -36,7 +36,7 @@ apply_chat_template: False
 add_generation_prompt: True
 
 
-prompt: "{instruction}"
+#prompt: "{instruction}"
 chat_prefix: "<|start_header_id|>user<|end_header_id|>\n\n<image>\nWhat is shown in this image?"
 chat_suffix: "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
@@ -46,7 +46,7 @@ read_tensor:
   read_fn:
     _target_: dataset.readers.vl_guard_full_reader
     image_dir: ${data_dir}/VLGuard/test/
-  template: ${chat_prefix}${prompt}${chat_suffix}
+  template: ${chat_prefix}${chat_suffix}
   instruction:
   index_field: "id"
   service_based: False

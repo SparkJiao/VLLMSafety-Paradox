@@ -10,7 +10,7 @@ hydra:
 data_dir: ../research.data/mm-safety/
 train_file:
 dev_file:
-test_file: ${data_dir}/VLGuard/test.json
+test_file: ${data_dir}/MM-SafetyBench/data/processed_questions
 
 port: 6000
 model: ds-coder-v1.5-chat
@@ -29,42 +29,35 @@ split_id: 0
 max_num_seqs: 256
 suffix: n${n}.tem${tem}
 
-output_file: outputs/mm-safety/vl-guard/vl-guard.img-desc-eval.${suffix}.json
+output_file: outputs/mm-safety/mm-safety-bench/vl-safe.${suffix}.img-desc-typo.json
 flush_file: ${output_file}l
 
 apply_chat_template: False
 add_generation_prompt: True
 
-
-prompt: "{instruction}"
-chat_prefix: "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant to answer the questions from the user.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nHere is a description of of image:\n\n{description}\n\n"
-chat_suffix: "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 gpu_memory_utilization: 0.8
+chat_prefix: "<|start_header_id|>user<|end_header_id|>\n\n<image>\nWhat is shown in this image?"
+chat_suffix: "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
 # Data loading
 read_tensor:
   _target_: dataset.combine_dataset.ResponseAlignDataset
   read_fn:
-    _target_: dataset.readers.vl_guard_reader
-  aligner:
-    _target_: dataset.input_aligner.field_extract_aligner
-    input_index_field: id
-    extract_index_field: id
-    extract_fields: [ response ]
-    extra_file: outputs/mm-safety/vl-guard/vl-guard.image-desc.n1.tem0.0.json
-    renamed_fields:
-      response: description
-  template: ${chat_prefix}${prompt}${chat_suffix}
+    _target_: dataset.readers.json2list_full_reader
+    image_dir: ${data_dir}/MM-SafetyBench/data/imgs/
+  template: ${chat_prefix}${chat_suffix}
   instruction:
   index_field: "id"
   service_based: False
   split_size: ${split_size}
   split_id: ${split_id}
   max_data_num: -1
+  image_key: typo_image
 
 save_best: True
 eval_sub_path:
-output_dir: ../pretrained-models/Meta-Llama-3-8B-Instruct
+#output_dir: ../pretrained-models/Meta-Llama-3-8B-Instruct
+output_dir: ../pretrained-models/llama3-llava-next-8b-hf/
 
 # Dataloader
 num_workers: 32
@@ -75,14 +68,11 @@ tp_size: 1
 pp_size: 1
 
 post_process:
-  _target_: post_processors.api_callback.SafetyResponseCallback
+  _target_: post_processors.api_callback.SaveOnlyCallBack
   answer_clean:
-  evaluator:
-    _target_: post_processors.eval.keywords.KeyWordsEvaluator
   output_file: ${output_file}
   index_field: id
-  label_field: "instruction_safe"
-  saved_keys: [ "image", "instruction", "instruction_safe", "instr-resp", "safe", "category" ]
+  saved_keys: [ "Question", "GPT-Pred", "Changed Question", "Key Phrase", "Phrase Type", "Rephrased Question", "Rephrased Question(SD)" ]
 
 # Training hyper-parameters
 per_gpu_train_batch_size: 1

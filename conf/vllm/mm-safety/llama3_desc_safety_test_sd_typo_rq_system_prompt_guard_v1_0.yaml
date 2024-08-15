@@ -26,27 +26,47 @@ tem: ${sampling_params.temperature}
 n: ${sampling_params.n}
 split_size: -1
 split_id: 0
-max_num_seqs: 256
+max_num_seqs: 128
 suffix: n${n}.tem${tem}
 
-output_file: outputs/mm-safety/mm-safety-bench/mm-safety-bench.text-only.${suffix}.rephrase-q.json
+output_file: outputs/mm-safety/mm-safety-bench/mm-safety-bench.rephrase-q.img-desc-sd-typo.system-prompt.eval.guard.${suffix}.json
 flush_file: ${output_file}l
 
-apply_chat_template: False
+apply_chat_template: True
 add_generation_prompt: True
 
-
-prompt: "{Rephrased Question}"
-chat_prefix: "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant to answer the questions from the user.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n"
-chat_suffix: "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 gpu_memory_utilization: 0.8
+prompt: "{Rephrased Question}"
+chat_prefix: "Here is a description of an image:\n\n{description}\n\n"
+chat_suffix: "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
 # Data loading
 read_tensor:
   _target_: dataset.combine_dataset.ResponseAlignDataset
   read_fn:
     _target_: dataset.readers.json2list_reader
-  template: ${chat_prefix}${prompt}${chat_suffix}
+    add_system_prompt: True
+  aligner:
+    _target_: dataset.input_aligner.concat_aligner
+    aligners:
+      - _target_: dataset.input_aligner.field_extract_aligner
+        input_index_field: id
+        extract_index_field: id
+        extract_fields: [ response ]
+        extra_file: outputs/mm-safety/mm-safety-bench/mm-safety-bench.n1.tem0.0.img-desc-sd-typo.json
+        renamed_fields:
+          response: description
+      - _target_: dataset.input_aligner.field_extract_aligner
+        input_index_field: id
+        extract_index_field: id
+        extract_fields: [ response, res ]
+        extra_file: outputs/mm-safety/mm-safety-bench/mm-safety-bench.rephrase-q.img-desc-sd-typo.system-prompt.eval.n1.tem0.0.json
+        renamed_fields:
+          response: agent_response
+          res: agent_res
+  template:
+    user: ${chat_prefix}${prompt}
+    assistant: "{agent_response}"
   instruction:
   index_field: "id"
   service_based: False
@@ -56,7 +76,7 @@ read_tensor:
 
 save_best: True
 eval_sub_path:
-output_dir: ../pretrained-models/Meta-Llama-3-8B-Instruct
+output_dir: ../pretrained-models/Llama-Guard-3-8B
 
 # Dataloader
 num_workers: 32
@@ -70,10 +90,10 @@ post_process:
   _target_: post_processors.api_callback.SafetyResponseCallback
   answer_clean:
   evaluator:
-    _target_: post_processors.eval.keywords.KeyWordsEvaluator
+    _target_: post_processors.eval.keywords.GuardEvaluator
   output_file: ${output_file}
   index_field: id
-  saved_keys: [ "Question", "GPT-Pred", "Changed Question", "Key Phrase", "Phrase Type", "Rephrased Question", "Rephrased Question(SD)", "category" ]
+  saved_keys: [ "Question", "GPT-Pred", "Changed Question", "Key Phrase", "Phrase Type", "Rephrased Question", "Rephrased Question(SD)", "category", "agent_response", "agent_res" ]
 
 # Training hyper-parameters
 per_gpu_train_batch_size: 1

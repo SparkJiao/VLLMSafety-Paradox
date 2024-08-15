@@ -69,6 +69,7 @@ def evaluate(cfg: DictConfig, model: vllm.LLM, prefix="", _split="dev"):
             text = tokenizer.apply_chat_template(conversation=inputs.pop("text"),
                                                  tokenize=False,
                                                  add_generation_prompt=getattr(cfg, "add_generation_prompt", True))
+            inputs["meta_data"]["text"] = text
         else:
             text = inputs.pop("text")
         if "image" in inputs:
@@ -168,10 +169,11 @@ def main(cfg: DictConfig):
         model = vllm.LLM(model=checkpoint,
                          tensor_parallel_size=cfg.n_gpu,
                          swap_space=getattr(cfg, "swap_space", 32),
-                         gpu_memory_utilization=float(getattr(os.environ, "gpu_memory_utilization", 0.95)),
+                         gpu_memory_utilization=float(getattr(cfg, "gpu_memory_utilization", 0.95)),
                          load_format=getattr(cfg, "load_format", "auto"),
                          max_num_seqs=getattr(cfg, "max_num_seqs", 256),
                          seed=cfg.seed,
+                         distributed_executor_backend=getattr(cfg, "distributed_executor_backend", "ray"),
                          dtype="bfloat16" if cfg.fp16_bfloat16 else "float16")
 
         if cfg.test_file:

@@ -273,19 +273,12 @@ class SafetyResponseCallback:
                     response = response[0]
             else:
                 response = ""
-        # if isinstance(response, str):
-        #     pred_clean = self.answer_clean(response)
-        # elif isinstance(response, list):
-        #     pred_clean = [self.answer_clean(item) for item in response]
-        # else:
-        #     raise ValueError(f"Unknown type of response: {type(response)}")
 
         out_item = {
             "text": text,
             "response": response,
-            # "pred": pred_clean,
             "id": index,
-            "label": -1,
+            "label": label,
         }
         if self.saved_keys is not None:
             for key in self.saved_keys:

@@ -5,6 +5,7 @@ from typing import List, Dict, Callable, Optional, Union
 import random
 
 import omegaconf
+from omegaconf import DictConfig
 from torch.utils.data import Dataset
 from transformers import PreTrainedTokenizer
 
@@ -86,7 +87,15 @@ class ResponseAlignDataset(Dataset):
 
     def api_getitem(self, index):
         item = self.data[index]
-        text = self.template.format(**item)
+        if isinstance(self.template, DictConfig):
+            text = []
+            for k, v in self.template.items():
+                text.append({
+                    "role": k,
+                    "content": v.format(**item),
+                })
+        else:
+            text = self.template.format(**item)
         if self.message_compose_fn is not None:
             text = self.message_compose_fn(text)
         item["text"] = text
@@ -112,7 +121,15 @@ class ResponseAlignDataset(Dataset):
         if self.service_based:
             return self.service_getitem(idx)
         item = self.data[idx]
-        text = self.template.format(**item)
+        if isinstance(self.template, DictConfig):
+            text = []
+            for k, v in self.template.items():
+                text.append({
+                    "role": k,
+                    "content": v.format(**item),
+                })
+        else:
+            text = self.template.format(**item)
         item["text"] = text
         res = {
             "text": text,
