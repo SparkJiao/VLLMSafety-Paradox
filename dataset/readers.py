@@ -6,6 +6,7 @@ import json
 from general_util.logger import get_child_logger
 import os
 from PIL import Image
+from functools import partial
 
 logger = get_child_logger(__name__)
 
@@ -25,12 +26,14 @@ class SafeBenchCSVReader(Dataset):
     """
 
     # TODO: Add image reading.
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, image_dir: str, image_name_template: str = "query_ForbidQI_{category_id}_{task_id}_6.png"):
         data = []
         with open(file_path, encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile, delimiter=',')
             for i, row in enumerate(reader):
                 row["id"] = i
+                row["image"] = os.path.join(image_dir, image_name_template.format(**row))
+                row["category"] = row["category_name"]
                 data.append(row)
 
         self.data = data
@@ -42,11 +45,11 @@ class SafeBenchCSVReader(Dataset):
         return len(self.data)
 
     @classmethod
-    def return_cls(cls):
-        return cls
+    def return_cls(cls, **kwargs):
+        return partial(cls, **kwargs)
 
 
-def jsonl_reader():
+def jsonl_reader(image_dir: str):
     """
     Data format sample:
     `LVLM_NLF/VLSafe/harmlessness_examine.jsonl`
@@ -73,6 +76,8 @@ def jsonl_reader():
     def func(file_path: str):
         data = [json.loads(line) for line in open(file_path).readlines()]
         for i, item in enumerate(data):
+            image = os.path.join(image_dir, item["image_id"])
+            item["image"] = image
             item["id"] = i
         return data
 

@@ -25,6 +25,8 @@ import os
 import sys
 from typing import List
 
+os.environ["OUTLINES_CACHE_DIR"] = "/tmp/.outlines"  # This is a bug of vllm 0.5.3.post1
+
 import hydra
 import torch
 import vllm
@@ -172,9 +174,11 @@ def main(cfg: DictConfig):
                          gpu_memory_utilization=float(getattr(cfg, "gpu_memory_utilization", 0.95)),
                          load_format=getattr(cfg, "load_format", "auto"),
                          max_num_seqs=getattr(cfg, "max_num_seqs", 256),
+                         max_model_len=getattr(cfg, "max_model_len", 8192),
                          seed=cfg.seed,
                          distributed_executor_backend=getattr(cfg, "distributed_executor_backend", "ray"),
-                         dtype="bfloat16" if cfg.fp16_bfloat16 else "float16")
+                         dtype="bfloat16" if cfg.fp16_bfloat16 else "float16",
+                         trust_remote_code=True,)
 
         if cfg.test_file:
             prefix = f'test' + (f'-{prefix}' if prefix != "" else "")
