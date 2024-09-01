@@ -1,6 +1,7 @@
 from transformers import AutoProcessor
 import json
 import argparse
+from qwen_vl_utils import process_vision_info
 
 
 def main():
@@ -25,6 +26,7 @@ def main():
             },
             {
                 "type": "image",
+                "image": "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg",
             }
         ]
     }
@@ -38,17 +40,17 @@ def main():
         "content": "This is a system message!"
     }
 
-    res = tokenizer.apply_chat_template([user_img_message], add_generation_prompt=True)
+    res = tokenizer.apply_chat_template([user_img_message], tokenize=False, add_generation_prompt=True)
     print(res)
     print(json.dumps({"text": res}, indent=2))
     print()
 
-    res = tokenizer.apply_chat_template([user_img_message, agent_message], add_generation_prompt=True)
+    res = tokenizer.apply_chat_template([user_img_message, agent_message], tokenize=False, add_generation_prompt=True)
     print(res)
     print(json.dumps({"text": res}, indent=2))
     print()
 
-    res = tokenizer.apply_chat_template([system_message, user_img_message, agent_message], add_generation_prompt=True)
+    res = tokenizer.apply_chat_template([system_message, user_img_message, agent_message], tokenize=False, add_generation_prompt=True)
     print(res)
     print(json.dumps({"text": res}, indent=2))
 

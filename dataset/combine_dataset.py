@@ -138,6 +138,7 @@ class ResponseAlignDataset(Dataset):
 
         if self.image_key is not None:
             image = Image.open(item[self.image_key])
+            image = image.convert("RGB")
             res["image"] = image
 
         return res
