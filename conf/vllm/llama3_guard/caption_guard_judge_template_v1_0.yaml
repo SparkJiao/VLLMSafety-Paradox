@@ -1,0 +1,91 @@
+defaults:
+  - hydra: default
+  - _self_
+
+hydra:
+  searchpath:
+    - file://conf/
+
+
+data_dir: ../research.data/mm-safety/
+train_file:
+dev_file:
+test_file:
+
+port: 6000
+model: ds-coder-v1.5-chat
+
+sampling_params:
+  _target_: vllm.SamplingParams
+  n: 1
+  temperature: 0.0
+  stop: [ "</s>", "\n\n\n\n", "Context:\n", "Thought 42:", "<|end_of_text|>", "<|eot_id|>", "<|EOT|>" ]
+  max_tokens: 4096
+
+tem: ${sampling_params.temperature}
+n: ${sampling_params.n}
+split_size: -1
+split_id: 0
+max_num_seqs: 128
+suffix: n${n}.tem${tem}
+
+output_file: ${test_file}.llama3-guard-8b.${suffix}.v1.0.json
+flush_file: ${output_file}l
+
+apply_chat_template: True
+add_generation_prompt: True
+
+gpu_memory_utilization: 0.9
+chat_prefix: "Please describe the content of this image:\n\n<image>"
+
+# Data loading
+read_tensor:
+  _target_: dataset.combine_dataset.ResponseAlignDataset
+  template:
+    user: ${chat_prefix}
+    assistant: "{response}"
+  instruction:
+  index_field: "id"
+  service_based: False
+  split_size: ${split_size}
+  split_id: ${split_id}
+  max_data_num: -1
+
+save_best: True
+eval_sub_path:
+output_dir: ../pretrained-models/Llama-Guard-3-8B
+
+# Dataloader
+num_workers: 32
+prefetch_factor: 2
+
+dp_size:
+tp_size: 1
+pp_size: 1
+
+post_process:
+  _target_: post_processors.api_callback.SafetyResponseCallback
+  answer_clean:
+  evaluator:
+    _target_: post_processors.eval.keywords.GuardPredictor
+  output_file: ${output_file}
+  index_field: id
+  saved_keys: [ "category" ]
+
+# Training hyper-parameters
+per_gpu_train_batch_size: 1
+per_gpu_eval_batch_size: 1
+
+ddp_eval: False
+no_cuda: False
+seed: 42
+local_rank: -1
+
+# Temporary variables
+fp16: True
+fp16_bfloat16: True
+n_gpu: 1
+device:
+train_batch_size:
+eval_batch_size:
+world_size:

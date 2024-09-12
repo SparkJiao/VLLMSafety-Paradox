@@ -6,6 +6,7 @@ from typing import Dict, Any, List, Tuple, Union, Callable
 import numpy as np
 import vllm
 from omegaconf import ListConfig
+import warnings
 
 from general_util.logger import get_child_logger
 
@@ -282,6 +283,11 @@ class SafetyResponseCallback:
         }
         if self.saved_keys is not None:
             for key in self.saved_keys:
+                if key not in meta_data:
+                    with warnings.catch_warnings(record=True):
+                        warnings.simplefilter("once", UserWarning)
+                        warnings.warn(f"Key {key} not found in meta_data.")
+                    continue
                 out_item[key] = meta_data[key]
         self.predictions.append(out_item)
         self.fw.write(json.dumps(self.predictions[-1], ensure_ascii=False) + "\n")
