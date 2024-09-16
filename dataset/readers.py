@@ -285,3 +285,30 @@ def vl_guard_full_reader(image_dir: str):
         return outputs
 
     return func
+
+
+def vl_guard_unsafe_image_reader(image_dir):
+    def func(file_path):
+        data = json.load(open(file_path))
+
+        outputs = []
+        for item in data:
+            resp_tuple = item["instr-resp"]
+
+            for i, resp in enumerate(resp_tuple):
+                if "instruction" in resp:
+                    new_item = copy.deepcopy(item)
+                    new_item["instruction"] = resp["instruction"]
+                    new_item["response"] = resp["response"]
+                    new_item["instruction_safe"] = False
+                    new_item["category"] = "unsafe-image"
+                else:
+                    continue
+                new_item["id"] = f"{item['id']}-{i}"
+                new_item["image"] = os.path.join(image_dir, item["image"])
+
+                outputs.append(new_item)
+
+        return outputs
+
+    return func

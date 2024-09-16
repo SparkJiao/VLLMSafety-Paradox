@@ -140,6 +140,20 @@ def concat_aligner(aligners: List[Callable]):
     return func
 
 
+def key_based_filter_aligner(key: str):
+    def func(data: List[Dict]):
+        key_set = set()
+        outputs = []
+        for item in data:
+            if item[key] in key_set:
+                continue
+            key_set.add(item[key])
+            outputs.append(item)
+        return outputs
+
+    return func
+
+
 def dpo_pair_aligner_cleaned(response_field: str = "response",
                              id_field: str = "id",
                              do_sample: bool = False, ):

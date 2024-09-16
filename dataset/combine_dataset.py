@@ -105,8 +105,11 @@ class ResponseAlignDataset(Dataset):
             "meta_data": item,
         }
         if self.image_key is not None:
-            image = Image.open(item[self.image_key])
+            image_path = item[self.image_key]
+            image = Image.open(image_path)
+            image = image.convert("RGB")
             res["image"] = image
+            res["image_path"] = image_path
         return res
 
     def service_getitem(self, index):
@@ -137,9 +140,11 @@ class ResponseAlignDataset(Dataset):
         }
 
         if self.image_key is not None:
-            image = Image.open(item[self.image_key])
+            image_path = item[self.image_key]
+            image = Image.open(image_path)
             image = image.convert("RGB")
             res["image"] = image
+            res["image_path"] = image_path
 
         return res
 

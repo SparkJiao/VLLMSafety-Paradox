@@ -49,6 +49,9 @@ read_tensor:
   read_fn:
     _target_: dataset.readers.json2list_full_reader
     image_dir: ${data_dir}/MM-SafetyBench/data/imgs/
+  aligner:
+    _target_: dataset.input_aligner.key_based_filter_aligner
+    key: sd_image
   template: ${chat_prefix}${chat_suffix}
   instruction:
   index_field: "id"
@@ -77,7 +80,7 @@ post_process:
     _target_: post_processors.eval.keywords.KeyWordsEvaluator
   output_file: ${output_file}
   index_field: id
-  saved_keys: [ "Question", "GPT-Pred", "Changed Question", "Key Phrase", "Phrase Type", "Rephrased Question", "Rephrased Question(SD)", "category" ]
+  saved_keys: [ "Question", "GPT-Pred", "Changed Question", "Key Phrase", "Phrase Type", "Rephrased Question", "Rephrased Question(SD)", "category", "image_path" ]
 
 # Training hyper-parameters
 per_gpu_train_batch_size: 1

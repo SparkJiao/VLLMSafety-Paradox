@@ -102,3 +102,24 @@ python vllm_inference.py -cp conf/vllm/fig_step -cn llama3_text_test_v1_0
 |     Phi-3-vision-128k | 80.36 |
 |           InternVL-8B | 74.59 |
 
+#### Description - LLama-3-Guard-Evaluation
+
+|         Model         | FigStep | MM-Safety - SD | MM-Safety - SD-TYPO | MM-Safety - TYPO | VL-Guard | VL-Safe |
+|:---------------------:|:-------:|:--------------:|:-------------------:|-----------------:|:--------:|:-------:|
+|     InternVL2-8B      |  63.4   |     99.88      |        98.99        |            98.39 |  98.20   |  99.90  |
+| Llava-next-llama3-8b  |  76.0   |      1.0       |        99.94        |            99.58 |   99.0   |  100.0  |
+|    Llava-v1.5-13b     |  75.0   |     99.94      |        99.70        |            99.94 |   99.8   |  100.0  |
+|     Llava-v1.5-7b     |  94.6   |     99.94      |        99.76        |            100.0 |  100.0   |  100.0  | 
+| llava-v1.6-mistral-7b |  82.4   |     99.94      |        99.41        |            99.94 |   98.9   |  100.0  |
+|      Qwen2-VL-7B      |  82.0   |     100.0      |        99.64        |            99.52 |   99.1   |  100.0  |
+
+#### OCR - LLama-3-Guard-Evaluation
+
+|         Model         | FigStep | VL-Guard |
+|:---------------------:|:-------:|:--------:|
+|     InternVL2-8B      |  66.6   |  89.37   | 
+| Llava-next-llama3-8b  |  75.6   |  98.19   |
+|    Llava-v1.5-13b     |  83.2   |  99.32   | 
+|     Llava-v1.5-7b     |  68.0   |  97.96   | 
+| llava-v1.6-mistral-7b |  88.2   |  98.19   | 
+|      Qwen2-VL-7B      |  67.2   |  96.15   |

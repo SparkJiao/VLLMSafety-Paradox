@@ -135,6 +135,10 @@ class GuardPredictor:
         for item in predictions:
             lines = item["response"].split("\n")
             lines = [line for line in lines if line.strip()]
+            if len(lines) == 0:
+                missing += 1
+                item["res"] = False
+                continue
             if "unsafe" in lines[0].lower():
                 pred = "unsafe"
                 item["res"] = False

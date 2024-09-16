@@ -10,7 +10,7 @@ hydra:
 data_dir: ../research.data/mm-safety/
 train_file:
 dev_file:
-test_file: ${data_dir}/MM-SafetyBench/data/processed_questions
+test_file: ${data_dir}/VLGuard/test.json
 
 port: 6000
 model: ds-coder-v1.5-chat
@@ -20,36 +20,35 @@ sampling_params:
   n: 1
   temperature: 0.0
   stop: [ "</s>", "\n\n\n\n", "Context:\n", "Thought 42:", "<|end_of_text|>", "<|eot_id|>", "<|EOT|>" ]
-  max_tokens: 8192
+  max_tokens: 4096
 
 tem: ${sampling_params.temperature}
 n: ${sampling_params.n}
 split_size: -1
 split_id: 0
-max_num_seqs: 32
-max_model_len: 8192
+max_num_seqs: 256
 suffix: n${n}.tem${tem}
 
-output_file: outputs/llava-v1.6-mistral-7b-hf/mm-safety/mm-safety.caption.sd.v1.0.${suffix}.json
+output_file: outputs/llama3-llava-next-8b-hf/vl-guard/vl-guard.ocr.v1.0.${suffix}.json
 flush_file: ${output_file}l
 
 apply_chat_template: False
 add_generation_prompt: True
 
 
-chat_prefix: "[INST] <image>\nPlease describe the content of this image. [/INST]"
-chat_suffix: ""
-gpu_memory_utilization: 0.9
+chat_prefix: "<|start_header_id|>user<|end_header_id|>\n\n<image>\nPlease recognize the text in the image.<|eot_id|>"
+chat_suffix: "<|start_header_id|>assistant<|end_header_id|>\n\n"
+gpu_memory_utilization: 0.8
 
 # Data loading
 read_tensor:
   _target_: dataset.combine_dataset.ResponseAlignDataset
   read_fn:
-    _target_: dataset.readers.json2list_full_reader
-    image_dir: ${data_dir}/MM-SafetyBench/data/imgs/
+    _target_: dataset.readers.vl_guard_unsafe_image_reader
+    image_dir: ${data_dir}/VLGuard/test/
   aligner:
     _target_: dataset.input_aligner.key_based_filter_aligner
-    key: sd_image
+    key: image
   template: ${chat_prefix}${chat_suffix}
   instruction:
   index_field: "id"
@@ -57,11 +56,11 @@ read_tensor:
   split_size: ${split_size}
   split_id: ${split_id}
   max_data_num: -1
-  image_key: sd_image
+  image_key: image
 
 save_best: True
 eval_sub_path:
-output_dir: ../pretrained-models/llava-v1.6-mistral-7b-hf/
+output_dir: ../pretrained-models/llama3-llava-next-8b-hf/
 
 # Dataloader
 num_workers: 32
@@ -78,7 +77,8 @@ post_process:
     _target_: post_processors.eval.keywords.KeyWordsEvaluator
   output_file: ${output_file}
   index_field: id
-  saved_keys: [ "Question", "GPT-Pred", "Changed Question", "Key Phrase", "Phrase Type", "Rephrased Question", "Rephrased Question(SD)", "category", "image_path" ]
+  label_field: "instruction_safe"
+  saved_keys: [ "image", "instruction", "instruction_safe", "instr-resp", "safe", "category", "image_path" ]
 
 # Training hyper-parameters
 per_gpu_train_batch_size: 1
