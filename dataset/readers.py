@@ -5,8 +5,11 @@ from glob import glob
 import json
 from general_util.logger import get_child_logger
 import os
+import base64
 from PIL import Image
+from io import BytesIO
 from functools import partial
+import math
 
 logger = get_child_logger(__name__)
 
@@ -121,7 +124,7 @@ def json2list_reader(add_system_prompt: bool = False):
     return func
 
 
-def json2list_full_reader(image_dir: str, add_system_prompt: bool = False):
+def json2list_full_reader(image_dir: str, add_system_prompt: bool = False, use_empty_image: bool = False):
     """
     {
         "0": {
@@ -310,5 +313,100 @@ def vl_guard_unsafe_image_reader(image_dir):
                 outputs.append(new_item)
 
         return outputs
+
+    return func
+
+
+def load_image_from_base64(image):
+    return Image.open(BytesIO(base64.b64decode(image)))
+
+
+def get_fn_load_image_from_base64():
+    return load_image_from_base64
+
+
+def is_none(value):
+    if value is None:
+        return True
+    if type(value) is float and math.isnan(value):
+        return True
+    if type(value) is str and value.lower() == 'nan':
+        return True
+    if type(value) is str and value.lower() == 'none':
+        return True
+    return False
+
+
+def get_options(row, options):
+    parsed_options = []
+    for option in options:
+        option_value = row[option]
+        if is_none(option_value):
+            break
+        parsed_options.append(option_value)
+    return parsed_options
+
+
+def mmbench_reader():
+    """
+    sample:
+        index: str
+        question: str
+        hint: str
+
+    :param file_path:
+    :return:
+    """
+
+    def func(file_path: str):
+        all_options = ["A", "B", "C", "D"]
+        data = []
+
+        # Open the file and read the TSV
+        with open(file_path, mode='r', newline='', encoding='utf-8') as tsvfile:
+            reader = csv.DictReader(tsvfile, delimiter='\t')
+
+            # Append each row's dictionary to the list
+            for row in reader:
+                data.append(dict(row))
+
+        for row in data:
+            # row["image"] = load_image_from_base64(row["image"])
+            options = get_options(row, all_options)
+
+            question = row['question']
+            hint = row['hint']
+            if not is_none(hint):
+                question = hint + '\n' + question
+            for option_char, option in zip(all_options[:len(options)], options):
+                question = question + '\n' + option_char + '. ' + option
+
+            qs = question
+            qs = qs + '\n' + "Answer with the option's letter from the given choices directly."
+
+            row["prompt"] = qs
+
+        return data
+
+    return func
+
+
+def seed_bench_image_reader(image_dir):
+    def func(file_path: str):
+        data = json.load(open(file_path))
+
+        sub_data = [item for item in data["questions"] if 1 <= item["question_type_id"] <= 9]
+
+        new_data = []
+        for item in sub_data:
+            assert isinstance(item["data_id"], str)
+            item["image"] = os.path.join(image_dir, item["data_id"])
+            if not os.path.exists(item["image"]):
+                logger.warning(f"Image not found: {item['image']}")
+                continue
+            new_data.append(item)
+
+        logger.info(f"Loaded {len(sub_data)} questions from {file_path}")
+        return new_data
 
     return func

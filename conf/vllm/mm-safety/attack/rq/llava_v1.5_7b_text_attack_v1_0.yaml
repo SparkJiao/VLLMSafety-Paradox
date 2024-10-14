@@ -30,14 +30,14 @@ max_num_seqs: 256
 max_model_len: 4096
 suffix: n${n}.tem${tem}
 
-output_file: outputs/llava-1.5-7b-hf/mm-safety/mm-safety.attack.sd.rq-sd.v1.0.${suffix}.json
+output_file: outputs/llava-1.5-7b-hf/mm-safety/mm-safety.attack.text.rq.v1.0.${suffix}.json
 flush_file: ${output_file}l
 
 apply_chat_template: False
 add_generation_prompt: True
 
 
-chat_prefix: "USER: <image>\n{Rephrased Question(SD)} ASSISTANT:"
+chat_prefix: "USER: {Rephrased Question} ASSISTANT:"
 chat_suffix: ""
 gpu_memory_utilization: 0.8
 
@@ -54,7 +54,7 @@ read_tensor:
   split_size: ${split_size}
   split_id: ${split_id}
   max_data_num: -1
-  image_key: sd_image
+#  image_key: sd_image
 
 save_best: True
 eval_sub_path:

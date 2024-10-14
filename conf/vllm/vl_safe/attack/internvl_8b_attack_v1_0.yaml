@@ -30,7 +30,7 @@ max_num_seqs: 256
 max_model_len: 4096
 suffix: n${n}.tem${tem}
 
-output_file: outputs/InternVL2-8B/vl-guard/vl-guard.attack.full.v1.0.${suffix}.json
+output_file: outputs/InternVL2-8B/vl-safe/vl-safe.attack.full.v1.0.${suffix}.json
 flush_file: ${output_file}l
 
 apply_chat_template: False

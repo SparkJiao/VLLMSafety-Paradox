@@ -28,6 +28,7 @@ split_size: -1
 split_id: 0
 max_num_seqs: 256
 suffix: n${n}.tem${tem}
+max_model_len: 4096
 
 output_file: outputs/llava-1.5-7b-hf/vl-guard/vl-guard.attack.full.v1.0.${suffix}.json
 flush_file: ${output_file}l

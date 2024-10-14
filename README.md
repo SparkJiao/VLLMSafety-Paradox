@@ -45,6 +45,23 @@ python vllm_inference.py -cp conf/vllm/fig_step -cn llama3_text_test_v1_0
 |           InternVL-8B | 51.54 |             23.12             |            98.39            |    28.28     |
 |           Qwen2-VL-7B | 54.43 |             25.63             |            97.85            |    35.97     |
 
+##### VL-Guard - ASR
+
+|                 Model | ASR  | Safe-image-unsafe-instruction | safe-image-safe-instruction | unsafe-image | unsafe |
+|----------------------:|:----:|:-----------------------------:|:---------------------------:|:------------:|:------:|
+|           InternVL-8B | 47.5 |                               |                             |              |  26.6  |
+|               - Guard | 3.9  |                               |                             |              |  5.5   |
+|  Llava-next-llama3-8b | 52.3 |                               |                             |              |  79.4  |
+|               - Guard | 2.2  |                               |                             |              |  3.4   |
+|        Llava-v1.5-13b | 53.0 |                               |                             |              |  81.7  |
+|               - Guard | 3.5  |                               |                             |              |  5.4   |
+|         Llava-v1.5-7b | 57.4 |                               |                             |              |  88.6  |
+|               - Guard | 5.4  |                               |                             |              |  8.4   |
+| Llava-v1.6-mistral-7b | 49.4 |                               |                             |              |  75.0  |
+|               - Guard | 2.8  |                               |                             |              |  4.4   |
+|           Qwen2-VL-7B | 45.6 |                               |                             |              |  69.8  |
+|               - Guard | 2.0  |                               |                             |              |  3.1   |
+
 ##### MM-Safety
 
 |                                            Model | Overall Reject Rate | Illegal Activity | Hate Speech | Malware Generation | Physical Harm | Economic Harm | Fraud |  Sex  | Political Lobbying | Privacy Violence | Legal Opinion | Financial Advice | Health Consultation | Gov Decision |
@@ -78,6 +95,79 @@ python vllm_inference.py -cp conf/vllm/fig_step -cn llama3_text_test_v1_0
 |                           Qwen2-VL-7B SD-TYPO+RQ |        35.60        |      83.51       |    42.94    |       43.18        |     54.17     |     25.41     | 8.83  | 11.01 |        8.50        |      52.52       |     27.69     |      28.14       |        22.02        |     5.37     |
 |                              Qwen2-VL-7B TYPO+RQ |        39.64        |      89.69       |    56.44    |       50.00        |     55.56     |     25.41     | 79.22 | 19.27 |        5.88        |      66.19       |     32.31     |      19.76       |        21.10        |     8.05     |
 
+###### MM-Safety SD+RQ-SD ASR
+
+|                 Model | ASR  | Illegal Activity | Hate Speech | Malware Generation | Physical Harm | Economic Harm | Fraud | Sex  | Political Lobbying | Privacy Violence | Legal Opinion | Financial Advice | Health Consultation | Gov Decision |
+|----------------------:|:----:|:----------------:|:-----------:|:------------------:|:-------------:|:-------------:|:-----:|:----:|:------------------:|:----------------:|:-------------:|:----------------:|:-------------------:|:------------:|
+|          InternVL2-8B | 68.8 |       47.7       |    63.2     |        72.7        |     61.8      |     73.8      | 55.8  | 87.2 |        89.5        |       60.4       |     67.7      |       59.9       |        71.6         |     85.9     | 
+|               - Guard | 8.5  |       11.3       |     8.6     |        11.4        |     17.4      |      1.6      | 14.3  | 3.7  |        0.0         |       11.5       |     16.2      |       4.2        |        13.8         |     0.0      |
+|  Llava-next-llama3-8b | 74.6 |       48.5       |    72.4     |        77.3        |     67.4      |     79.5      | 72.8  | 84.4 |        95.4        |       79.9       |     73.1      |       64.1       |        71.6         |     79.9     |
+|               - Guard | 9.0  |       22.7       |    10.4     |        18.2        |     22.2      |      2.5      | 19.5  | 0.0  |        0.0         |       19.5       |      3.1      |       3.0        |         2.8         |     0.0      |
+|        Llava-v1.5-13b | 86.1 |       63.9       |    87.7     |        79.5        |     81.2      |     91.8      | 83.8  | 92.7 |        98.7        |       86.3       |     80.0      |       86.2       |        79.8         |     95.3     |
+|               - Guard | 12.2 |       28.9       |    18.4     |        13.6        |     25.0      |      3.3      | 31.2  | 3.7  |        0.7         |       25.2       |      5.4      |       1.2        |         3.7         |     0.0      |
+|         Llava-v1.5-7b | 88.0 |       70.1       |    87.7     |        84.1        |     85.4      |     93.4      | 85.1  | 94.5 |        98.7        |       89.9       |     76.2      |       88.6       |        85.3         |     96.0     |
+|               - Guard | 13.0 |       29.9       |    21.5     |        20.5        |     27.1      |      2.5      | 30.5  | 2.8  |        0.0         |       24.5       |      5.4      |       2.4        |         7.3         |     0.0      |
+| Llava-v1.6-mistral-7b | 78.6 |       56.7       |    73.6     |        77.3        |     79.2      |     81.1      | 79.2  | 88.1 |        93.5        |       78.5       |     76.9      |       75.4       |        67.0         |     86.6     |
+|               - Guard | 9.3  |       25.8       |    13.5     |        13.6        |     22.2      |      2.5      | 26.0  | 0.0  |        0.0         |       16.5       |      1.5      |       1.2        |         0.9         |     0.0      |
+|           Qwen2-VL-7B | 81.1 |       52.6       |    82.8     |        75.0        |     70.8      |     82.8      | 75.3  | 91.7 |        95.4        |       80.6       |     81.5      |       80.8       |        77.1         |     94.6     |
+|               - Guard | 8.5  |       17.5       |     9.2     |        11.4        |     22.2      |      0.8      | 16.2  | 1.8  |        0.7         |       17.3       |      5.4      |       3.0        |         7.3         |     0.0      |
+
+###### MM-Safety SD+Typo-RQ ASR
+
+|                 Model | ASR  | Illegal Activity | Hate Speech | Malware Generation | Physical Harm | Economic Harm | Fraud | Sex  | Political Lobbying | Privacy Violence | Legal Opinion | Financial Advice | Health Consultation | Gov Decision |
+|----------------------:|:----:|:----------------:|:-----------:|:------------------:|:-------------:|:-------------:|:-----:|:----:|:------------------:|:----------------:|:-------------:|:----------------:|:-------------------:|:------------:|
+|          InternVL2-8B | 58.7 |       9.3        |    51.5     |        50.0        |     40.3      |     67.2      | 33.1  | 85.3 |        85.0        |       38.1       |     67.7      |       62.3       |        77.0         |     84.9     |
+|               - Guard | 25.6 |       37.1       |    27.0     |        63.6        |     50.7      |     11.5      | 52.6  | 20.2 |        2.0         |       46.0       |     23.8      |       8.4        |        18.3         |     0.0      |
+|  Llava-next-llama3-8b | 56.8 |       20.6       |    53.4     |        43.2        |     40.3      |     65.6      | 29.9  | 66.1 |        93.5        |       45.3       |     68.5      |       64.7       |        56.0         |     73.2     |
+|               - Guard | 23.0 |       55.7       |    28.8     |        50.0        |     47.9      |      8.2      | 54.5  | 15.6 |        0.0         |       44.6       |      5.4      |       4.2        |         6.4         |     0.0      |
+|        Llava-v1.5-13b | 77.4 |
+|               - Guard | 29.5 |
+|         Llava-v1.5-7b | 86.8 |
+|               - Guard | 29.9 |
+| Llava-v1.6-mistral-7b | 62.3 |
+|               - Guard | 27.3 |
+|           Qwen2-VL-7B | 64.4 |
+|               - Guard | 36.7 |
+
+###### MM-Safety Typo+RQ ASR
+
+|                 Model | ASR  | Illegal Activity | Hate Speech | Malware Generation | Physical Harm | Economic Harm | Fraud | Sex | Political Lobbying | Privacy Violence | Legal Opinion | Financial Advice | Health Consultation | Gov Decision |
+|----------------------:|:----:|:----------------:|:-----------:|:------------------:|:-------------:|:-------------:|:-----:|:---:|:------------------:|:----------------:|:-------------:|:----------------:|:-------------------:|:------------:|
+|          InternVL2-8B | 53.0 |
+|               - Guard | 26.5 |
+|  Llava-next-llama3-8b | 53.8 |
+|               - Guard | 25.4 |
+|        Llava-v1.5-13b | 84.2 |
+|               - Guard | 12.2 |
+|         Llava-v1.5-7b | 87.1 |
+|               - Guard | 12.0 |
+| Llava-v1.6-mistral-7b | 57.6 |
+|               - Guard | 25.4 |
+|           Qwen2-VL-7B | 60.4 |
+|               - Guard | 24.0 |
+
+###### MM-Safety Text-only RQ
+
+|                  Model |  ASR  |
+|-----------------------:|:-----:|
+|    Llava-v1.5-7b-mixed | 7.98  |
+|  Llava-v1.5-7b-posthoc | 5.60  |
+|   Llava-v1.5-13b-mixed | 15.77 |
+| Llava-v1.5-13b-posthoc | 3.15  |
+|          Llava-v1.5-7b | 41.9  |
+|         Llava-v1.5-13b | 32.3  |
+
+###### MM-Safety Text-only RQ-SD
+
+|                  Model |  ASR  |
+|-----------------------:|:-----:|
+|    Llava-v1.5-7b-mixed | 7.56  |
+|  Llava-v1.5-7b-posthoc | 6.01  |
+|   Llava-v1.5-13b-mixed | 9.29  |
+| Llava-v1.5-13b-posthoc | 1.90  |
+|          Llava-v1.5-7b | 33.99 |
+|         Llava-v1.5-13b | 25.18 |
+
 ##### FigStep
 
 |                 Model | Overall | Illegal Activity | Hate Speech | Malware Generation | Physical Harm | Fraud | Adult Content | Privacy Violation | Legal Opinion | Financial Advice | Health Consultation | 
@@ -87,8 +177,26 @@ python vllm_inference.py -cp conf/vllm/fig_step -cn llama3_text_test_v1_0
 |  Llava-next-llama3-8b |  51.6   |       72.0       |    50.0     |        80.0        |     76.0      | 76.0  |     26.0      |       42.0        |     28.0      |       36.0       |        30.0         |
 | Llava-v1.6-mistral-7b |  49.8   |       84.0       |    70.0     |        80.0        |     66.0      | 74.0  |     28.0      |       42.0        |     16.0      |       22.0       |        16.0         |
 |           InternVL-8B |  54.2   |       56.0       |    86.0     |        84.0        |     70.0      | 82.0  |     16.0      |       66.0        |     26.0      |       22.0       |        34.0         | 
+|   InternVL-8B - Guard |  74.4   |       72.0       |    90.0     |        60.0        |     54.0      | 74.0  |     80.0      |       82.0        |     74.0      |       82.0       |        76.0         |
 |     Phi-3-vision-128k |  89.2   |       94.0       |    100.0    |        96.0        |     82.0      | 86.0  |     70.0      |       96.0        |     72.0      |       88.0       |        88.0         |
 |           Qwen2-VL-7B |  67.8   |       86.0       |    90.0     |        90.0        |     92.0      | 92.0  |     32.0      |       84.0        |     34.0      |       22.0       |        56.0         |
+
+###### ASR (1 - acc_rate)
+
+|                         Model | Overall | Illegal Activity | Hate Speech | Malware Generation | Physical Harm | Fraud | Adult Content | Privacy Violation | Legal Opinion | Financial Advice | Health Consultation | 
+|------------------------------:|:-------:|:----------------:|:-----------:|:------------------:|:-------------:|:-----:|:-------------:|:-----------------:|:-------------:|:----------------:|:-------------------:|
+|                 Llava-v1.5-7b |  65.6   |       48.0       |    50.0     |        42.0        |     62.0      | 58.0  |     80.0      |       74.0        |     86.0      |       82.0       |        74.0         |
+|         Llava-v1.5-7b - Guard |  42.6   |       62.0       |    30.0     |        80.0        |     82.0      | 76.0  |     18.0      |       42.0        |     18.0      |       14.0       |         4.0         |
+|                Llava-v1.5-13b |  53.2   |       28.0       |    38.0     |        24.0        |     40.0      | 48.0  |     76.0      |       58.0        |     78.0      |       80.0       |        62.0         |
+|        Llava-v1.5-13b - Guard |  34.2   |       48.0       |    10.0     |        62.0        |     64.0      | 66.0  |     14.0      |       30.0        |     24.0      |       16.0       |         8.0         |
+|          Llava-next-llama3-8b |  48.4   |       28.0       |    50.0     |        20.0        |     24.0      | 24.0  |     74.0      |       58.0        |     72.0      |       64.0       |        70.0         |
+|  Llava-next-llama3-8b - Guard |  58.8   |       80.0       |    72.0     |        92.0        |     94.0      | 78.0  |     28.0      |       72.0        |     10.0      |       18.0       |        34.0         |
+|         Llava-v1.6-mistral-7b |  50.2   |       16.0       |    30.0     |        20.0        |     34.0      | 26.0  |     72.0      |       58.0        |     84.0      |       78.0       |        84.0         |
+| Llava-v1.6-mistral-7b - Guard |  15.0   |       38.0       |     2.0     |        28.0        |     14.0      | 26.0  |     16.0      |       10.0        |     12.0      |       4.0        |         0.0         |
+|                   InternVL-8B |  45.8   |       44.0       |    14.0     |        16.0        |     30.0      | 18.0  |     84.0      |       34.0        |     74.0      |       78.0       |        66.0         | 
+|           InternVL-8B - Guard |  35.6   |       28.0       |    10.0     |        40.0        |     46.0      | 26.0  |     20.0      |       18.0        |     26.0      |       18.0       |        24.0         |
+|                   Qwen2-VL-7B |  32.2   |       14.0       |    10.0     |        10.0        |      8.0      |  8.0  |     68.0      |       16.0        |     66.0      |       78.0       |        44.0         |
+|           Qwen2-VL-7B - Guard |  58.6   |       74.0       |    66.0     |        90.0        |     92.0      | 86.0  |     24.0      |       72.0        |     10.0      |       34.0       |        38.0         |
 
 ##### VL-Safe
 
@@ -102,6 +210,23 @@ python vllm_inference.py -cp conf/vllm/fig_step -cn llama3_text_test_v1_0
 |     Phi-3-vision-128k | 80.36 |
 |           InternVL-8B | 74.59 |
 
+##### VL-Safe ASR
+
+|                 Model | Acc. | 
+|----------------------:|:----:|
+|           InternVL-8B | 25.9 |
+|               - Guard | 36.8 |
+|  Llava-next-llama3-8b | 46.9 | 
+|               - Guard | 24.8 |
+|        Llava-v1.5-13b | 58.5 |  
+|               - Guard | 38.8 |
+|         Llava-v1.5-7b | 58.3 |
+|               - Guard | 75.5 |
+| Llava-v1.6-mistral-7b | 15.4 | 
+|               - Guard | 43.4 |
+|           Qwen2-VL-7B | 49.5 |
+|               — Guard | 15.4 |
+
 #### Description - LLama-3-Guard-Evaluation
 
 |         Model         | FigStep | MM-Safety - SD | MM-Safety - SD-TYPO | MM-Safety - TYPO | VL-Guard | VL-Safe |
@@ -113,13 +238,59 @@ python vllm_inference.py -cp conf/vllm/fig_step -cn llama3_text_test_v1_0
 | llava-v1.6-mistral-7b |  82.4   |     99.94      |        99.41        |            99.94 |   98.9   |  100.0  |
 |      Qwen2-VL-7B      |  82.0   |     100.0      |        99.64        |            99.52 |   99.1   |  100.0  |
 
+#### Description - Keywords - ASR
+
+|         Model         | FigStep | MM-Safety - SD | MM-Safety - SD-TYPO | MM-Safety - TYPO | VL-Guard Safe Image | VL-Guard Unsafe Image | VL-Safe |
+|:---------------------:|:-------:|:--------------:|:-------------------:|-----------------:|:-------------------:|:---------------------:|:-------:|
+|  Llava-1.5-7b-mixed   |         |                |                     |                  |        79.03        |         97.96         |         |
+| Llava-1.5-7b-posthoc  |         |                |                     |                  |        83.69        |         98.64         |         |
+| Llava-1.5-13b-posthoc |         |                |                     |                  |        56.81        |         87.10         |         |
+|  Llava-1.5-13b-mixed  |         |                |                     |                  |        56.09        |         92.76         |         |
+|     Llava-v1.5-7b     |         |                |                     |                  |         0.0         |          0.0          |         | 
+|    Llava-v1.5-13v     |         |                |                     |                  |         0.2         |          0.0          |         |
+
+##### Caption Prompt 1
+
+|         Model         | FigStep | MM-Safety - SD | MM-Safety - SD-TYPO | MM-Safety - TYPO | VL-Guard Safe Image | VL-Guard Unsafe Image | VL-Safe |
+|:---------------------:|:-------:|:--------------:|:-------------------:|-----------------:|:-------------------:|:---------------------:|:-------:|
+|  Llava-1.5-7b-mixed   |         |                |                     |                  |        59.19        |         89.14         |         |
+| Llava-1.5-7b-posthoc  |         |                |                     |                  |        14.87        |         37.33         |         |
+| Llava-1.5-13b-posthoc |         |                |                     |                  |        10.93        |         43.21         |         |
+|  Llava-1.5-13b-mixed  |         |                |                     |                  |        10.03        |         47.51         |         |
+
+##### Caption Prompt 2
+
+|         Model         | FigStep | MM-Safety - SD | MM-Safety - SD-TYPO | MM-Safety - TYPO | VL-Guard Safe Image | VL-Guard Unsafe Image | VL-Safe |
+|:---------------------:|:-------:|:--------------:|:-------------------:|-----------------:|:-------------------:|:---------------------:|:-------:|
+|  Llava-1.5-7b-mixed   |         |                |                     |                  |         0.5         |         14.07         |         |
+| Llava-1.5-7b-posthoc  |         |                |                     |                  |         0.2         |          0.7          |         |
+| Llava-1.5-13b-posthoc |         |                |                     |                  |         0.2         |          0.2          |         |
+|  Llava-1.5-13b-mixed  |         |                |                     |                  |         0.9         |         12.44         |         |
+
+#### OCR - GPT-4o
+
+|     Model     | FigStep | MM-Safety - SD | MM-Safety - SD-TYPO | MM-Safety - TYPO | VL-Guard | VL-Safe |
+|:-------------:|:-------:|:--------------:|:-------------------:|-----------------:|:--------:|:-------:|
+| Llava-v1.5-7b |  65.8   |                |        92.86        |                  |          |         |
+
 #### OCR - LLama-3-Guard-Evaluation
 
-|         Model         | FigStep | VL-Guard |
-|:---------------------:|:-------:|:--------:|
-|     InternVL2-8B      |  66.6   |  89.37   | 
-| Llava-next-llama3-8b  |  75.6   |  98.19   |
-|    Llava-v1.5-13b     |  83.2   |  99.32   | 
-|     Llava-v1.5-7b     |  68.0   |  97.96   | 
-| llava-v1.6-mistral-7b |  88.2   |  98.19   | 
-|      Qwen2-VL-7B      |  67.2   |  96.15   |
+|         Model         | FigStep | VL-Guard | MM-Safety - SD-TYPO |
+|:---------------------:|:-------:|:--------:|:-------------------:|
+|     InternVL2-8B      |  66.6   |  89.37   |        98.99        |
+| Llava-next-llama3-8b  |  75.6   |  98.19   |        99.76        |
+|    Llava-v1.5-13b     |  83.2   |  99.32   |        99.11        |
+|     Llava-v1.5-7b     |  68.0   |  97.96   |        96.96        |
+| llava-v1.6-mistral-7b |  88.2   |  98.19   |        99.28        |
+|      Qwen2-VL-7B      |  67.2   |  96.15   |        96.01        |
+
+### VL-Guard Checkpoint Inference
+
+|         Model          | FigStep | MM-Safety - SD + RQ-SD | MM-Safety - SD + TYPO-RQ | MM-Safety - TYPO + RQ | VL-Guard (Safe) | VL-Guard (unsafe ins.) | VL-Guard (unsafe img.) | VL-Safe |
+|:----------------------:|:-------:|:----------------------:|:------------------------:|:---------------------:|:---------------:|:-----------------------|:----------------------:|:-------:|
+|  Llava-v1.5-7b-mixed   |   2.2   |          0.00          |           0.00           |         0.00          |      7.71       | 0.72                   |          0.23          |  2.89   |
+| Llava-v1.5-7b-posthoc  |   6.8   |          0.12          |           1.02           |         0.12          |      5.74       | 0.90                   |          0.00          |  2.35   |
+|  Llava-v1.5-13b-mixed  |   2.8   |          0.18          |           0.12           |         0.06          |      9.68       | 0.36                   |          0.23          |  1.99   |
+| Llava-v1.5-13b-posthoc |   3.6   |          0.24          |           0.18           |         0.18          |      8.43       | 0.72                   |          2.04          |  1.27   |
+
+

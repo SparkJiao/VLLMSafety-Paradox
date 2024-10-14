@@ -10,7 +10,7 @@ hydra:
 data_dir: ../research.data/mm-safety/
 train_file:
 dev_file:
-test_file: ${data_dir}/MM-SafetyBench/data/processed_questions
+test_file: ${data_dir}/VLGuard/test.json
 
 port: 6000
 model: ds-coder-v1.5-chat
@@ -26,18 +26,18 @@ tem: ${sampling_params.temperature}
 n: ${sampling_params.n}
 split_size: -1
 split_id: 0
-max_num_seqs: 256
+max_num_seqs: 32
 max_model_len: 4096
 suffix: n${n}.tem${tem}
 
-output_file: outputs/llava-1.5-7b-hf/mm-safety/mm-safety.attack.sd.rq-sd.v1.0.${suffix}.json
+output_file: outputs/llava-1.5-13b-hf/vl-guard/vl-guard.caption.v1.2.${suffix}.json
 flush_file: ${output_file}l
 
 apply_chat_template: False
 add_generation_prompt: True
 
 
-chat_prefix: "USER: <image>\n{Rephrased Question(SD)} ASSISTANT:"
+chat_prefix: "USER: <image>\nWhat is shown in the image? ASSISTANT:"
 chat_suffix: ""
 gpu_memory_utilization: 0.8
 
@@ -45,8 +45,11 @@ gpu_memory_utilization: 0.8
 read_tensor:
   _target_: dataset.combine_dataset.ResponseAlignDataset
   read_fn:
-    _target_: dataset.readers.json2list_full_reader
-    image_dir: ${data_dir}/MM-SafetyBench/data/imgs/
+    _target_: dataset.readers.vl_guard_full_reader
+    image_dir: ${data_dir}/VLGuard/test/
+  aligner:
+    _target_: dataset.input_aligner.key_based_filter_aligner
+    key: image
   template: ${chat_prefix}${chat_suffix}
   instruction:
   index_field: "id"
@@ -54,11 +57,11 @@ read_tensor:
   split_size: ${split_size}
   split_id: ${split_id}
   max_data_num: -1
-  image_key: sd_image
+  image_key: image
 
 save_best: True
 eval_sub_path:
-output_dir: ../pretrained-models/llava-1.5-7b-hf/
+output_dir: ../pretrained-models/llava-1.5-13b-hf/
 
 # Dataloader
 num_workers: 32
@@ -75,7 +78,8 @@ post_process:
     _target_: post_processors.eval.keywords.KeyWordsEvaluator
   output_file: ${output_file}
   index_field: id
-  saved_keys: [ "Question", "GPT-Pred", "Changed Question", "Key Phrase", "Phrase Type", "Rephrased Question", "Rephrased Question(SD)", "category" ]
+  label_field: "instruction_safe"
+  saved_keys: [ "image", "instruction", "instruction_safe", "instr-resp", "safe", "category", "image_path" ]
 
 # Training hyper-parameters
 per_gpu_train_batch_size: 1

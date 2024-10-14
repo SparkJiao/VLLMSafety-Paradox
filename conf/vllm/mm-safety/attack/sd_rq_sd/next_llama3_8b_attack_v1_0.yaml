@@ -30,7 +30,7 @@ max_num_seqs: 256
 max_model_len: 4096
 suffix: n${n}.tem${tem}
 
-output_file: outputs/llama3-llava-next-8b-hf/mm-safety/mm-safety.attack.full.v1.0.${suffix}.json
+output_file: outputs/llama3-llava-next-8b-hf/mm-safety/mm-safety.attack.sd.rq-sd.v1.0.${suffix}.json
 flush_file: ${output_file}l
 
 apply_chat_template: False

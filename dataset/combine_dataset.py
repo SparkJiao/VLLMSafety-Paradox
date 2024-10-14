@@ -40,6 +40,7 @@ class ResponseAlignDataset(Dataset):
                  max_data_num: int = -1,
                  read_fn: Callable = json_read_fn,
                  image_key: str = None,
+                 image_load_fn: Optional[Callable] = None,
                  ):
         self.tokenizer = tokenizer
         self.template = template
@@ -55,6 +56,7 @@ class ResponseAlignDataset(Dataset):
         self.index_field = index_field
         self.max_data_num = max_data_num
         self.image_key = image_key
+        self.image_load_fn = image_load_fn
 
         data = read_fn(file_path)
         self.data: List[Dict] = aligner(data)
@@ -105,11 +107,16 @@ class ResponseAlignDataset(Dataset):
             "meta_data": item,
         }
         if self.image_key is not None:
-            image_path = item[self.image_key]
-            image = Image.open(image_path)
-            image = image.convert("RGB")
-            res["image"] = image
-            res["image_path"] = image_path
+            if self.image_load_fn is None:
+                image_path = item[self.image_key]
+                image = Image.open(image_path)
+                image = image.convert("RGB")
+                res["image"] = image
+                res["image_path"] = image_path
+            else:
+                image = self.image_load_fn(item[self.image_key])
+                res["image"] = image
+
         return res
 
     def service_getitem(self, index):
