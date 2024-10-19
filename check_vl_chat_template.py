@@ -1,7 +1,7 @@
 from transformers import AutoProcessor
 import json
 import argparse
-from qwen_vl_utils import process_vision_info
+# from qwen_vl_utils import process_vision_info
 
 
 def main():

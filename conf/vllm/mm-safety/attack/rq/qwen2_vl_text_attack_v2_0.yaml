@@ -1,0 +1,96 @@
+defaults:
+  - hydra: default
+  - _self_
+
+hydra:
+  searchpath:
+    - file://conf/
+
+
+data_dir: ../research.data/mm-safety/
+train_file:
+dev_file:
+test_file: ${data_dir}/MM-SafetyBench/data/processed_questions
+
+port: 6000
+model: ds-coder-v1.5-chat
+
+sampling_params:
+  _target_: vllm.SamplingParams
+  n: 1
+  temperature: 0.0
+  stop: [ "</s>", "\n\n\n\n", "<|end_of_text|>", "<|eot_id|>", "<|EOT|>", "<|im_start|>", "<|im_end|>", "<|user|>", "<|end|>", "<|assistant|>", "<|endoftext|>" ]
+  max_tokens: 4096
+
+tem: ${sampling_params.temperature}
+n: ${sampling_params.n}
+split_size: -1
+split_id: 0
+max_num_seqs: 256
+max_model_len: 4096
+suffix: n${n}.tem${tem}
+
+output_file: outputs/Qwen2-VL-7B-Instruct/mm-safety/mm-safety.attack.text.rq.v2.0.${suffix}.json
+flush_file: ${output_file}l
+
+apply_chat_template: False
+add_generation_prompt: True
+
+# Here is another bug to be fixed: https://github.com/vllm-project/vllm/pull/7392
+chat_prefix: "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\n{Rephrased Question}<|vision_start|><|image_pad|><|vision_end|><|im_end|>\n"
+chat_suffix: "<|im_start|>assistant\n"
+
+# Data loading
+read_tensor:
+  _target_: dataset.combine_dataset.ResponseAlignDataset
+  read_fn:
+    _target_: dataset.readers.json2list_full_reader
+    image_dir: ${data_dir}/MM-SafetyBench/data/imgs/
+    dummy_image: True
+  template: ${chat_prefix}${chat_suffix}
+  instruction:
+  index_field: "id"
+  service_based: False
+  split_size: ${split_size}
+  split_id: ${split_id}
+  max_data_num: -1
+  image_key: sd_image
+
+save_best: True
+eval_sub_path:
+output_dir: ../pretrained-models/Qwen2-VL-7B-Instruct/
+
+# Dataloader
+num_workers: 32
+prefetch_factor: 2
+
+dp_size:
+tp_size: 1
+pp_size: 1
+
+post_process:
+  _target_: post_processors.api_callback.SafetyResponseCallback
+  answer_clean:
+  evaluator:
+    _target_: post_processors.eval.keywords.KeyWordsEvaluator
+  output_file: ${output_file}
+  index_field: id
+  saved_keys: [ "Question", "GPT-Pred", "Changed Question", "Key Phrase", "Phrase Type", "Rephrased Question", "Rephrased Question(SD)", "category" ]
+
+# Training hyper-parameters
+per_gpu_train_batch_size: 1
+per_gpu_eval_batch_size: 1
+
+ddp_eval: False
+no_cuda: False
+seed: 42
+local_rank: -1
+
+# Temporary variables
+fp16: True
+fp16_bfloat16: True
+n_gpu: 1
+device:
+train_batch_size:
+eval_batch_size:
+world_size:
