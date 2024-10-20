@@ -19,7 +19,7 @@ sampling_params:
   _target_: vllm.SamplingParams
   n: 1
   temperature: 0.0
-  stop: [ "</s>", "\n\n\n\n", "Context:\n", "Thought 42:", "<|end_of_text|>", "<|eot_id|>", "<|EOT|>", "<|im_start|>", "<|im_end|>" ]
+  stop: [ "</s>", "\n\n\n\n", "Context:\n", "Thought 42:", "<|end_of_text|>", "<|eot_id|>", "<|EOT|>" ]
   max_tokens: 4096
 
 tem: ${sampling_params.temperature}
@@ -30,16 +30,18 @@ max_num_seqs: 256
 max_model_len: 4096
 suffix: n${n}.tem${tem}
 
-output_file: outputs/InternVL2-8B/vl-guard/vl-guard.caption.v1.0.${suffix}.json
+output_file: outputs/llava-1.5-13b-hf/vl-guard/vl-guard.system_prompt.caption.v1.0.${suffix}.json
 flush_file: ${output_file}l
 
 apply_chat_template: False
 add_generation_prompt: True
 
-# Currently there is a bug for InternVL2: https://github.com/vllm-project/vllm/pull/7164
-# I need to wait for the new release.
-chat_prefix: "<|im_start|>user\n<image>\nPlease describe the content of this image.<|im_end|>"
-chat_suffix: "<|im_start|>assistant\n"
+system_prompt:
+  _target_: dataset.input_utils.read_text
+  file_path: prompts/adashield-static-defense-prompt.txt
+
+chat_prefix: "USER: <image>\nPlease describe the content of this image. ASSISTANT:"
+chat_suffix: ""
 gpu_memory_utilization: 0.8
 
 # Data loading
@@ -51,7 +53,13 @@ read_tensor:
   aligner:
     _target_: dataset.input_aligner.key_based_filter_aligner
     key: image
-  template: ${chat_prefix}${chat_suffix}
+  template:
+    _target_: dataset.input_utils.compose_template
+    units:
+      system_prompt: ${system_prompt}
+      chat_prefix: "USER: "
+      chat_suffix: "\n\n<image>\nPlease describe the content of this image. ASSISTANT:"
+    composition: "{chat_prefix}{system_prompt}{chat_suffix}"
   instruction:
   index_field: "id"
   service_based: False
@@ -62,7 +70,7 @@ read_tensor:
 
 save_best: True
 eval_sub_path:
-output_dir: ../pretrained-models/InternVL2-8B/
+output_dir: ../pretrained-models/llava-1.5-13b-hf/
 
 # Dataloader
 num_workers: 32

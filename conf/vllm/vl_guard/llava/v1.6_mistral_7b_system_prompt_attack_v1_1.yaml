@@ -19,28 +19,28 @@ sampling_params:
   _target_: vllm.SamplingParams
   n: 1
   temperature: 0.0
-  stop: [ "</s>", "\n\n\n\n", "Context:\n", "Thought 42:", "<|end_of_text|>", "<|eot_id|>", "<|EOT|>", "<|im_start|>", "<|im_end|>" ]
-  max_tokens: 4096
+  stop: [ "</s>", "\n\n\n\n", "Context:\n", "Thought 42:", "<|end_of_text|>", "<|eot_id|>", "<|EOT|>" ]
+  max_tokens: 512
 
 tem: ${sampling_params.temperature}
 n: ${sampling_params.n}
 split_size: -1
 split_id: 0
 max_num_seqs: 256
-max_model_len: 4096
 suffix: n${n}.tem${tem}
+max_model_len: 4096
 
-output_file: outputs/InternVL2-8B/vl-guard/vl-guard.caption.v1.0.${suffix}.json
+output_file: outputs/llava-v1.6-mistral-7b-hf/vl-guard/vl-guard.attack.system_prompt.v1.1.${suffix}.json
 flush_file: ${output_file}l
 
 apply_chat_template: False
 add_generation_prompt: True
 
-# Currently there is a bug for InternVL2: https://github.com/vllm-project/vllm/pull/7164
-# I need to wait for the new release.
-chat_prefix: "<|im_start|>user\n<image>\nPlease describe the content of this image.<|im_end|>"
-chat_suffix: "<|im_start|>assistant\n"
-gpu_memory_utilization: 0.8
+system_prompt:
+  _target_: dataset.input_utils.read_text
+  file_path: prompts/adashield-static-defense-prompt.txt
+chat_prefix: "[INST] <image>\n{instruction} [/INST]"
+chat_suffix: ""
 
 # Data loading
 read_tensor:
@@ -48,10 +48,13 @@ read_tensor:
   read_fn:
     _target_: dataset.readers.vl_guard_full_reader
     image_dir: ${data_dir}/VLGuard/test/
-  aligner:
-    _target_: dataset.input_aligner.key_based_filter_aligner
-    key: image
-  template: ${chat_prefix}${chat_suffix}
+  template:
+    _target_: dataset.input_utils.compose_template
+    units:
+      system_prompt: ${system_prompt}
+      chat_prefix: "[INST]: <image>\n"
+      chat_suffix: "\n\n{instruction} [/INST]"
+    composition: "{chat_prefix}{system_prompt}{chat_suffix}"
   instruction:
   index_field: "id"
   service_based: False
@@ -62,7 +65,7 @@ read_tensor:
 
 save_best: True
 eval_sub_path:
-output_dir: ../pretrained-models/InternVL2-8B/
+output_dir: ../pretrained-models/llava-v1.6-mistral-7b-hf/
 
 # Dataloader
 num_workers: 32
@@ -79,8 +82,8 @@ post_process:
     _target_: post_processors.eval.keywords.KeyWordsEvaluator
   output_file: ${output_file}
   index_field: id
-  label_field:
-  saved_keys: [ "image", "instruction", "instruction_safe", "instr-resp", "safe", "category", "image_path" ]
+  label_field: "instruction_safe"
+  saved_keys: [ "image", "instruction", "instruction_safe", "instr-resp", "safe", "category" ]
 
 # Training hyper-parameters
 per_gpu_train_batch_size: 1

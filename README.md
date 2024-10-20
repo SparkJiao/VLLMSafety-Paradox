@@ -293,14 +293,24 @@ python vllm_inference.py -cp conf/vllm/fig_step -cn llama3_text_test_v1_0
 
 #### Description - Keywords - ASR
 
-|         Model         | FigStep | MM-Safety - SD | MM-Safety - SD-TYPO | MM-Safety - TYPO | VL-Guard Safe Image | VL-Guard Unsafe Image | VL-Safe |
-|:---------------------:|:-------:|:--------------:|:-------------------:|-----------------:|:-------------------:|:---------------------:|:-------:|
-|  Llava-1.5-7b-mixed   |         |                |                     |                  |        20.97        |         2.04          |         |
-| Llava-1.5-7b-posthoc  |         |                |                     |                  |        16.30        |         1.36          |         |
+|                 Model | FigStep | MM-Safety - SD | MM-Safety - SD-TYPO | MM-Safety - TYPO | VL-Guard Safe Image | VL-Guard Unsafe Image | VL-Safe |
+|----------------------:|:-------:|:--------------:|:-------------------:|-----------------:|:-------------------:|:---------------------:|:-------:|
+|    Llava-1.5-7b-mixed |         |                |                     |                  |        20.97        |         2.04          |         |
+|  Llava-1.5-7b-posthoc |         |                |                     |                  |        16.30        |         1.36          |         |
 | Llava-1.5-13b-posthoc |         |                |                     |                  |        43.18        |         12.90         |         |
-|  Llava-1.5-13b-mixed  |         |                |                     |                  |        43.91        |         7.24          |         |
-|     Llava-v1.5-7b     |         |                |                     |                  |        100.0        |         100.0         |         | 
-|    Llava-v1.5-13b     |         |                |                     |                  |        99.82        |         100.0         |         |
+|   Llava-1.5-13b-mixed |         |                |                     |                  |        43.91        |         7.24          |         |
+|         Llava-v1.5-7b |         |                |                     |                  |        100.0        |         100.0         |         | 
+|       + system prompt |         |                |                     |                  |        99.28        |         99.55         |         |
+|        Llava-v1.5-13b |         |                |                     |                  |        99.82        |         100.0         |         |
+|       + system prompt |         |                |                     |                  |        100.0        |         100.0         |         |
+|            InterVL-8B |         |                |                     |                  |        98.57        |         97.29         |         |
+|       + system prompt |         |                |                     |                  |        46.78        |         37.56         |         |
+| Llava-v1.6-mistral-7B |         |                |                     |                  |        100.0        |         99.10         |         |
+|       + system prompt |         |                |                     |                  |        99.64        |         98.87         |         |
+|  Llava-next-llama3-8b |         |                |                     |                  |        99.28        |         99.32         |         |
+|       + system prompt |         |                |                     |                  |        99.64        |         99.55         |         |
+|           QwenVL-2-7B |         |                |                     |                  |        99.46        |         99.55         |         |
+|       + system prompt |         |                |                     |                  |        98.92        |         85.29         |         |
 
 ##### Caption Prompt 1
 
