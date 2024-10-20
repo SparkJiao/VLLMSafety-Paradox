@@ -301,16 +301,22 @@ python vllm_inference.py -cp conf/vllm/fig_step -cn llama3_text_test_v1_0
 |   Llava-1.5-13b-mixed |         |                |                     |                  |        43.91        |         7.24          |         |
 |         Llava-v1.5-7b |         |                |                     |                  |        100.0        |         100.0         |         | 
 |       + system prompt |         |                |                     |                  |        99.28        |         99.55         |         |
+|     + sys prompt v2.1 |         |                |                     |                  |        13.08        |         23.08         |         |
 |        Llava-v1.5-13b |         |                |                     |                  |        99.82        |         100.0         |         |
 |       + system prompt |         |                |                     |                  |        100.0        |         100.0         |         |
+|     + sys prompt v2.1 |         |                |                     |                  |        2.86         |         2.26          |         |
 |            InterVL-8B |         |                |                     |                  |        98.57        |         97.29         |         |
 |       + system prompt |         |                |                     |                  |        46.78        |         37.56         |         |
+|     + sys prompt v2.1 |         |                |                     |                  |        37.81        |         15.61         |         |
 | Llava-v1.6-mistral-7B |         |                |                     |                  |        100.0        |         99.10         |         |
 |       + system prompt |         |                |                     |                  |        99.64        |         98.87         |         |
+|     + sys prompt v2.1 |         |                |                     |                  |        34.77        |         32.58         |         |
 |  Llava-next-llama3-8b |         |                |                     |                  |        99.28        |         99.32         |         |
 |       + system prompt |         |                |                     |                  |        99.64        |         99.55         |         |
+|     + sys prompt v2.1 |         |                |                     |                  |        40.14        |         40.27         |         |
 |           QwenVL-2-7B |         |                |                     |                  |        99.46        |         99.55         |         |
 |       + system prompt |         |                |                     |                  |        98.92        |         85.29         |         |
+|     + sys prompt v2.1 |         |                |                     |                  |        92.11        |         80.32         |         |
 
 ##### Caption Prompt 1
 
