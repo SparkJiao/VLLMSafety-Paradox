@@ -676,3 +676,22 @@ def seed_bench_image_reader(image_dir):
         return new_data
 
     return func
+
+
+def mm_vet_reader(image_dir):
+    def func(file_path: str):
+        data = json.load(open(file_path))
+
+        new_data = []
+        for item_id, item in data.items():
+            item["image"] = os.path.join(image_dir, item["imagename"])
+            item["id"] = item_id
+            if not os.path.exists(item["image"]):
+                logger.warning(f"Image not found: {item['image']}")
+                continue
+            new_data.append(item)
+
+        logger.info(f"Loaded {len(data)} questions from {file_path}")
+        return new_data
+
+    return func
