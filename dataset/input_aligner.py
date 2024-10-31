@@ -154,6 +154,21 @@ def key_based_filter_aligner(key: str):
     return func
 
 
+def key_value_based_filter_aligner(key: str, values: Union[str, List[str]]):
+    if isinstance(values, str):
+        values = [values]
+    values = set(values)
+
+    def func(data: List[Dict]):
+        outputs = []
+        for item in data:
+            if item[key] in values:
+                outputs.append(item)
+        return outputs
+
+    return func
+
+
 def dpo_pair_aligner_cleaned(response_field: str = "response",
                              id_field: str = "id",
                              do_sample: bool = False, ):

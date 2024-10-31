@@ -10,12 +10,24 @@ python vllm_inference.py -cp conf/vllm/fig_step -cn llama3_text_test_v1_0
 
 ### Results
 
-#### Text-only
+#### Text-only ASR
 
-|              Model               | FigStep | MM-Safety - RQ | MM-Safety - SD-TYPO+RQ | MM-Safety - SD+RQ-SD | MM-Safety - TYPO+RQ | VL-Guard | VL-Safe |
-|:--------------------------------:|:-------:|:--------------:|:----------------------:|---------------------:|:-------------------:|:--------:|:-------:|
-|        Llama3-8b-Instruct        |  71.4   |     20.71      |          ---           |                  --- |         ---         |  19.96   |  99.28  |
-| Description + Llama3-8b-Instruct |         |      ---       |         52.44          |                31.19 |        60.89        |  27.28   |         |
+|                    Model | FigStep | MM-Safety - RQ | MM-Safety - RQ-SD | MM-Safety - SD-TYPO+RQ | MM-Safety - SD+RQ-SD | MM-Safety - TYPO+RQ | VL-Guard | VL-Safe |
+|-------------------------:|:-------:|:--------------:|:-----------------:|:----------------------:|:--------------------:|:-------------------:|:--------:|:-------:|
+|     Llama3.1-8B-Instruct |  26.2   |      77.7      |       80.1        |          ---           |         ---          |         ---         |   67.8   |   0.7   |
+|           w/ description |  22.8   |      ---       |        ---        |          47.0          |         70.1         |        38.3         |   57.9   |   1.4   |
+|   w/ description-llava7b |  18.4   |                |                   |          60.7          |         71.4         |        65.2         |   58.0   |   1.4   |
+| Mistral-7B-Instruct-v0.2 |  28.8   |      66.9      |       58.7        |          ---           |         ---          |         ---         |   30.8   |  13.2   |
+|           w/ description |  39.4   |      ---       |        ---        |          55.3          |         71.1         |        49.7         |   52.9   |  15.6   |
+|   w/ description-llava7b |  39.0   |                |                   |          63.8          |         67.3         |        56.3         |   50.2   |  16.3   |
+|     Qwen2.5-14B-Instruct |  36.8   |      56.3      |       41.8        |          ---           |         ---          |         ---         |   17.2   |  22.3   |
+|           w/ description |  38.0   |      ---       |        ---        |          58.6          |         76.2         |        56.7         |   77.2   |  41.7   |
+|   w/ description-llava7b |  42.8   |                |                   |          71.7          |         77.5         |        69.3         |   76.5   |  41.3   |
+|   Llama-3.1-70B-Instruct |  35.2   |      87.6      |       85.5        |          ---           |         ---          |         ---         |   71.0   |   6.2   |
+
+[//]: # (|        Llama3-8b-Instruct        |  71.4   |     20.71      |          ---           |                  --- |         ---         |  19.96   |  99.28  |)
+
+[//]: # (| Description + Llama3-8b-Instruct |         |      ---       |         52.44          |                31.19 |        60.89        |  27.28   |         |)
 
 ----
 
