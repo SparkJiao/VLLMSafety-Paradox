@@ -362,3 +362,13 @@ def dpo_paired_random_choice_aligner(anchor_field: str, paired_field):
         return outputs
 
     return func
+
+
+def keyword_remove_aligner(field: str, keywords: ListConfig):
+    def func(data: List[Dict]):
+        for item in data:
+            for keyword in keywords:
+                item[field] = item[field].replace(keyword, "")
+        return data
+
+    return func
