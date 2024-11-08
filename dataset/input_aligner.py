@@ -6,6 +6,7 @@ from glob import glob
 from typing import Dict, List, Callable, Union
 
 from omegaconf.listconfig import ListConfig
+from omegaconf.dictconfig import DictConfig
 from tqdm import tqdm
 
 from general_util.logger import get_child_logger
@@ -369,6 +370,16 @@ def keyword_remove_aligner(field: str, keywords: ListConfig):
         for item in data:
             for keyword in keywords:
                 item[field] = item[field].replace(keyword, "")
+        return data
+
+    return func
+
+
+def keyword_replace_aligner(field: str, mapping: DictConfig):
+    def func(data: List[Dict]):
+        for item in data:
+            for k, v in mapping.items():
+                item[field] = item[field].replace(k, v)
         return data
 
     return func
