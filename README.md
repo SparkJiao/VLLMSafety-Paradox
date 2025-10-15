@@ -1,4 +1,8 @@
-# MMSafety
+# VLLMSafety Paradox
+
+This is the official repo for NeurIPS 2025 Paper: [The VLLM Safety Paradox: Dual Ease in Jailbreak Attack and Defense](https://arxiv.org/abs/2411.08410).
+
+The code and data will be cleaned for release soon.
 
 ## Inference Guidelines
 
